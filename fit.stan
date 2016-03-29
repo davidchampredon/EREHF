@@ -1,7 +1,7 @@
 data {
 	int numobs;  // number of observations
 	int<lower=0> Iobs[numobs]; // Observed incidence 
-	int<lower=0> GI_lag;
+	int<lower=0> GI_span;
 	real a; // intervention rate
   real<lower=0> GI_var;
 	real<lower=0> pop_size;
@@ -20,7 +20,7 @@ transformed parameters {
 model {
 	real z;
 	vector[numobs] S;
-	vector[GI_lag] GI_dist;
+	vector[GI_span] GI_dist;
 	real sGI;
 	real I_tmp;
 	vector[2] lambda;
@@ -40,10 +40,10 @@ model {
 	GI_theta <- GI_var/GI_mean;
 	
 	sGI <- 0;
-	for( t in 1:GI_lag){
+	for( t in 1:GI_span){
 		sGI <- sGI + t^GI_k * exp(-GI_theta*t);
 	}
-	for( t in 1:GI_lag){
+	for( t in 1:GI_span){
 		GI_dist[t] <- t^GI_k * exp(-GI_theta*t)/sGI;
 	}
 	
@@ -51,7 +51,7 @@ model {
 	
 	for(t in 2:numobs){
 		z <- 0;
-		for(j in 1:min(GI_lag,t-1)){
+		for(j in 1:min(GI_span,t-1)){
 			z <- z + GI_dist[j]*Iobs[t-j];
 		}
 		I_tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-a*t) * z ;
