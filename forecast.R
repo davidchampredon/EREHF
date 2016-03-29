@@ -3,11 +3,8 @@
 ERE.forecast <- function(prm, # <-- sampled parameter values after the fit
 						 fcast.horizon,
 						 pop_size, 
-						 R0, 
-						 alpha, 
 						 a, 
 						 GI_span, 
-						 GI_mean, 
 						 GI_var,
 						 last.obs,
 						 syn.inc.full = NULL,
