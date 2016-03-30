@@ -44,7 +44,7 @@ generate.data <- function(pop_size,
 		}
 		I.tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-a*t) * z 
 		I[t] <- rpois(n=1, lambda =  min(I.tmp, S[t-1]) )
-		S[t] <- S[t-1] - I[t]
+		S[t] <- max(0,S[t-1] - I[t])
 	}
 	return(list(S=S, I=I))
 }
