@@ -4,3 +4,4 @@ Forecasting incidence using a Renewal Equation with Susceptible Depletion model 
 
 The fit to observed data is done with Stan.
 
+Execute: `RScript main.R`
