@@ -30,7 +30,7 @@ compare.fit.truth <- function(prm.sample, prm.name){
 			col = mycol)
 }
 
-ERE.fit.stan <- function(model.filename, 
+RESuDe.fit.stan <- function(model.filename, 
 						  dat, 
 						  n.iter, 
 						  n.chains,

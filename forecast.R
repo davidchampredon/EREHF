@@ -1,9 +1,9 @@
 
 
-ERE.forecast <- function(prm, # <-- sampled parameter values after the fit
+RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 						 fcast.horizon,
 						 pop_size, 
-						 a, 
+						 kappa, 
 						 GI_span, 
 						 GI_var,
 						 last.obs,
@@ -24,16 +24,16 @@ ERE.forecast <- function(prm, # <-- sampled parameter values after the fit
 		R0_i      <- prm$R0[i]
 		GI_mean_i <- prm$GI_mean[i]
 		
-		tmp <-  generate.data(pop_size = pop_size,
-							  I.init   = I.init,
-							  R0       = R0_i,
-							  alpha    = alpha_i,
-							  a        = a,
-							  GI_span  = GI_span,
-							  GI_mean  = GI_mean_i,
-							  GI_var   = GI_var,
-							  horizon  = fcast.horizon,
-							  seed     = seed)
+		tmp <-  RESuDe.simulate(pop_size = pop_size,
+								I.init   = I.init,
+								R0       = R0_i,
+								alpha    = alpha_i,
+								kappa    = kappa,
+								GI_span  = GI_span,
+								GI_mean  = GI_mean_i,
+								GI_var   = GI_var,
+								horizon  = fcast.horizon,
+								seed     = seed)
 		sf[i,] <-tmp$I
 		if(i%%1000==0) message(paste("forecasting:",i,"/",nsamples))
 	}
@@ -46,7 +46,7 @@ ERE.forecast <- function(prm, # <-- sampled parameter values after the fit
 		par(mfrow=c(1,1))
 		ymx <- max(fcast.cone,syn.inc.full)
 		plot(syn.inc.full,
-			 main = "Forecast (median,50%CI, 95%CI)",
+			 main = "Forecast (median, 50%CI, 95%CI)",
 			 ylim = c(1,ymx),
 			 xlab="time",
 			 log='y',
@@ -59,15 +59,14 @@ ERE.forecast <- function(prm, # <-- sampled parameter values after the fit
 		lines(fcast.cone[,3],lwd=1)
 		lines(tfut,fcast.cone[tfut,3],lwd=2, col='blue')
 		
-		
 		col.cone <- rgb(0,0,0.8,0.3)
 		polygon(x = c(tfut,rev(tfut)), 
-				y=c(fcast.cone[tfut,1]+1,rev(fcast.cone[tfut,5])),
+				y=c(fcast.cone[tfut,1]+1,rev(fcast.cone[tfut,5])+1),
 				border = NA,
 				col = col.cone
 		)
 		polygon(x = c(tfut,rev(tfut)), 
-				y=c(fcast.cone[tfut,2],rev(fcast.cone[tfut,4])),
+				y=c(fcast.cone[tfut,2]+1,rev(fcast.cone[tfut,4])+1),
 				border = NA,
 				col = col.cone
 		)

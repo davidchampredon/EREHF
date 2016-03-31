@@ -10,16 +10,16 @@ GI_dist <- function(t, GI_span, GI_mean, GI_var){
 }
 
 
-generate.data <- function(pop_size, 
-						  I.init,
-						  R0, 
-						  alpha, 
-						  a, 
-						  GI_span, 
-						  GI_mean, 
-						  GI_var,
-						  horizon,
-						  seed=123) {
+RESuDe.simulate <- function(pop_size, 
+							I.init,
+							R0, 
+							alpha, 
+							kappa, 
+							GI_span, 
+							GI_mean, 
+							GI_var,
+							horizon,
+							seed=123) {
 	set.seed(seed)
 	
 	if(length(I.init)==1){
@@ -42,7 +42,7 @@ generate.data <- function(pop_size,
 		for(j in 1:min(GI_span,t-1)){
 			z <- z + GI_dist(j, GI_span, GI_mean, GI_var) * I[t-j]
 		}
-		I.tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-a*t) * z 
+		I.tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-kappa*t) * z 
 		I[t] <- rpois(n=1, lambda =  min(I.tmp, S[t-1]) )
 		S[t] <- max(0,S[t-1] - I[t])
 	}
@@ -50,31 +50,31 @@ generate.data <- function(pop_size,
 }
 
 
-generate.data.wrap <- function(pop_size, 
-							   I.init,
-							   R0, 
-							   alpha, 
-							   a, 
-							   GI_span, 
-							   GI_mean, 
-							   GI_var,
-							   horizon,
-							   last.obs,
-							   do.plot = FALSE,
-							   seed=123){
+RESuDe.simulate.wrap <- function(pop_size, 
+								 I.init,
+								 R0, 
+								 alpha, 
+								 kappa, 
+								 GI_span, 
+								 GI_mean, 
+								 GI_var,
+								 horizon,
+								 last.obs,
+								 do.plot = FALSE,
+								 seed=123){
 	
 	
 	# Generate full epidemic
-	syn.data <- generate.data(pop_size = pop_size, 
-							  I.init = I.init,
-							  R0 = R0,
-							  alpha = alpha,
-							  a = a, 
-							  GI_span = GI_span, 
-							  GI_mean = GI_mean, 
-							  GI_var = GI_var,
-							  horizon = horizon,
-							  seed = seed)
+	syn.data <- RESuDe.simulate(pop_size = pop_size, 
+								I.init = I.init,
+								R0 = R0,
+								alpha = alpha,
+								kappa = kappa, 
+								GI_span = GI_span, 
+								GI_mean = GI_mean, 
+								GI_var = GI_var,
+								horizon = horizon,
+								seed = seed)
 	syn.inc.full <- syn.data$I
 	
 	# Just take the start of epidemic
