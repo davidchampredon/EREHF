@@ -5,14 +5,13 @@ data {
 	
     real<lower=0> GI_var; // GI ~ Gamma ; Variance
 	real<lower=0> pop_size;
-	
 }
 
 parameters {
-  real<lower=0> R0;
-  real<lower=0> alpha;  // heterogeneity
-  real<lower=0> GI_mean;  // GI ~ Gamma ; Mean
-  real kappa; // intervention rate
+  real<lower=0,upper=10.0> R0;
+  real<lower=0, upper=6> alpha;  // heterogeneity
+  real<lower=0.1, upper=15> GI_mean;  // GI ~ Gamma ; Mean
+  real<lower=0.0001,upper=0.03> kappa; // intervention rate
 }
 
 transformed parameters {
@@ -56,9 +55,21 @@ model {
 			z <- z + GI_dist[j]*Iobs[t-j];
 		}
 		I_tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-kappa*t) * z ;
-		//Iobs[t] ~  poisson( I_tmp ); 
 		
-		increment_log_prob(poisson_log(Iobs[t],I_tmp));
+		// ---- DEBUG ----
+		if(is_nan(I_tmp)){
+			print("DEBUG :::","t=",t,
+			" S=",S[t-1], " alpha=",alpha, " popsize=",pop_size, 
+			" R0=",R0," kappa=",kappa, " z=",z);
+			print("GI_mean=",GI_mean, " GI_theta=",GI_theta, " sGI=",sGI);
+			for(j in 1:min(GI_span,t-1)){
+				print("t=", t, " j=",j, " GI_dist[j]=",GI_dist[j] , " Iobs[t-j]=",Iobs[t-j]);
+			}
+		}
+		// ---- DEBUG ----	
+		
+		Iobs[t] ~  poisson( I_tmp ); 
+		//increment_log_prob(poisson_log(Iobs[t],I_tmp));
 		
 		nextS[1] <- 0;
 		nextS[2] <- S[t-1] - Iobs[t];
