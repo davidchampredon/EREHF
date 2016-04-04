@@ -1,15 +1,16 @@
 
 
 RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
-						 fcast.horizon,
-						 pop_size, 
-						 kappa, 
-						 GI_span, 
-						 GI_var,
-						 last.obs,
-						 syn.inc.full = NULL,
-						 do.plot = FALSE,
-						 seed=123){
+							fcast.horizon,
+							pop_size, 
+							kappa,
+							alpha,
+							GI_span, 
+							GI_var,
+							last.obs,
+							syn.inc.full = NULL,
+							do.plot = FALSE,
+							seed=123){
 	# Future time:
 	tfut <- (last.obs):(last.obs+fcast.horizon)
 	
@@ -19,16 +20,24 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 	
 	I.init <- prm$Iout[1,1:last.obs]
 	
+	alpha_i <- alpha
+	kappa_i <- kappa
+	pop_size_i <- pop_size
+	
 	for(i in 1:nsamples){
-		alpha_i   <- prm$alpha[i]
+		
+		if(is.null(alpha)) alpha_i   <- prm$alpha[i]
+		if(is.null(kappa)) kappa_i <- prm$kappa[i]
+		if(is.null(pop_size)) pop_size_i <- prm$pop_size[i]
+		
 		R0_i      <- prm$R0[i]
 		GI_mean_i <- prm$GI_mean[i]
 		
-		tmp <-  RESuDe.simulate(pop_size = pop_size,
+		tmp <-  RESuDe.simulate(pop_size = pop_size_i,
 								I.init   = I.init,
 								R0       = R0_i,
 								alpha    = alpha_i,
-								kappa    = kappa,
+								kappa    = kappa_i,
 								GI_span  = GI_span,
 								GI_mean  = GI_mean_i,
 								GI_var   = GI_var,

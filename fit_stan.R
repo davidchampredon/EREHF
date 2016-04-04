@@ -34,8 +34,6 @@ RESuDe.fit.stan <- function(model.filename,
 						  dat, 
 						  n.iter, 
 						  n.chains,
-						  plot.trace = FALSE,
-						  plot.pairs = FALSE,
 						  plot.compTruth = FALSE
 						  ) {
 	
@@ -49,15 +47,11 @@ RESuDe.fit.stan <- function(model.filename,
 	
 	print(fit)
 	
+	par(mfrow=c(2,2))
 	prm <- extract(fit)
 	np <- names(prm)
 	np <- np[np!="Iout"]
-	
-	if(plot.trace) traceplot(fit, pars=np)
-	if(plot.pairs) pairs(fit)
-	
 	np <- np[np!="lp__"]
-	par(mfrow=c(2,2))
 	if(plot.compTruth) for(x in np) compare.fit.truth(prm,x)
 	
 	return(list(fit = fit, prm.sample = prm))

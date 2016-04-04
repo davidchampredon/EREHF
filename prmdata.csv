@@ -1,0 +1,10 @@
+pop_size , 1e4
+I.init , 1
+R0 , 2.5
+alpha , 1.25
+kappa , 0.0
+GI_span , 20 
+GI_mean , 3
+GI_var , 3
+horizon , 120
+last.obs, 15
