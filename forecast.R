@@ -42,10 +42,12 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 			alpha_i <- alpha
 			kappa_i <- kappa
 			pop_size_i <- pop_size
+			GI_var_i <- GI_var
 			
 			if(is.null(alpha)) alpha_i   <- prm$alpha[i]
 			if(is.null(kappa)) kappa_i <- prm$kappa[i]
 			if(is.null(pop_size)) pop_size_i <- prm$pop_size[i]
+			if(is.null(GI_var)) GI_var_i <- prm$GI_var[i]
 			
 			R0_i      <- prm$R0[i]
 			GI_mean_i <- prm$GI_mean[i]
@@ -57,7 +59,7 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 									kappa    = kappa_i,
 									GI_span  = GI_span,
 									GI_mean  = GI_mean_i,
-									GI_var   = GI_var,
+									GI_var   = GI_var_i,
 									horizon  = fcast.horizon,
 									seed     = seed)
 			return(tmp)
@@ -110,6 +112,8 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 			 main = paste0("Forecast (median, ",CI1,"%CI, ",CI2,"%CI)"),
 			 ylim = c(1,ymx),
 			 xlab = "time",
+			 ylab = "", 
+			 las = 1,
 			 log = 'y',
 			 typ = "o",
 			 cex = 0.6, pch=16, 
@@ -135,14 +139,14 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 				col = col.cone
 		)
 		
-		plot.density.ci <- function(dat, q, title="", dat.true=NULL,logx=FALSE){
+		plot.density.ci <- function(dat, q, title="", dat.true=NULL,logscale=FALSE){
 			dfs <- density(dat)
 			qt <- quantile(dat,probs = q)
 			plot(dfs,
 				 main = title,
 				 ylab = '', yaxt='n',
 				 xlab = '',
-				 log = ifelse(logx,'x',''),
+				 log = ifelse(logscale,'x',''),
 				 typ='l',
 				 lwd=3)
 			
@@ -162,22 +166,56 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 			}
 		}
 		
-		plot.density.ci(dat = final.size,
+		plot.hist.ci <- function(dat, q, title="", dat.true=NULL,logscale=FALSE){
+			
+			xlab <- ''
+			if(logscale){
+				dat      <- log10(dat)
+				if(!is.null(dat.true)) dat.true <- log10(dat.true)
+				xlab <- 'log10 scale'
+			} 
+			
+			qt <- quantile(dat,probs = q)
+			h <- hist(dat, 
+					  main = title,
+					  xlab = xlab,
+					  ylab='',yaxt='n',
+					  border = rgb(0,0,0,0.15), col=rgb(0,0,0,0.1))
+		
+			ys <- 0.8*max(h$counts)
+			segments(x0=qt[1],x1=qt[5],y0=ys,y1=ys,lwd=2, col='blue')
+			segments(x0=qt[2],x1=qt[4],y0=ys,y1=ys,lwd=7, col='blue')
+			
+			# Median
+			abline(v=qt[3], col='blue')
+			
+			if(!is.null(dat.true)){
+				dat.true.label <- dat.true
+				if(logscale) dat.true.label <- paste(round(dat.true,1),";",round(10^dat.true))
+				abline(v=dat.true,col="red",lty=2,lwd=3)
+				text(x=dat.true,y=max(h$counts)*1.01,
+					 labels = paste0("true value=",dat.true.label),
+					 pos = 4,
+					 col='red')
+			}
+		}
+		
+		plot.hist.ci(dat = final.size,
 						q = q,
 						title = "Final Size",
 						dat.true = final.size.true,
-						logx = TRUE)
+						logscale = TRUE)
 		
-		plot.density.ci(dat = pktime.inc,
+		plot.hist.ci(dat = pktime.inc,
 						q = q,
 						title = "Peak Timing",
 						dat.true = pktime.inc.true)
 		
-		plot.density.ci(dat = pk.inc,
+		plot.hist.ci(dat = pk.inc,
 						q = q,
 						title = "Peak incidence",
 						dat.true = pk.inc.true,
-						logx = TRUE)
+						logscale = TRUE)
 		
 		
 	}

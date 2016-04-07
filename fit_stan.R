@@ -30,6 +30,33 @@ compare.fit.truth <- function(prm.sample, prm.name){
 			col = mycol)
 }
 
+plot.posterior <- function(prm.sample, prm.name){
+	
+	z <- prm.sample[[prm.name]]
+	dd <- density(z,adjust = 0.4) 
+	plot(dd,
+		 main = prm.name,
+		 lwd=3,
+		 xlab="",
+		 yaxt="n", ylab="",
+		 xlim=range(dd$x))
+	m <- mean(z)
+	md <- median(z)
+	abline(v=c(m,md), col=c("blue","black"),lty=c(3,1))
+	q <- quantile(x = z, probs = c(0.025,0.1,0.9,0.975))
+	mycol <-  rgb(0,0,0,0.1)
+	polygon(x = c(q[1],q[4],q[4],q[1]), 
+			y=c(0,0,max(dd$y),max(dd$y)), 
+			border = NA,
+			col =mycol)
+	polygon(x = c(q[2],q[3],q[3],q[2]), 
+			y=c(0,0,max(dd$y),max(dd$y)), 
+			border = NA,
+			col = mycol)
+}
+
+
+
 RESuDe.fit.stan <- function(model.filename, 
 						  dat, 
 						  n.iter, 
@@ -51,9 +78,12 @@ RESuDe.fit.stan <- function(model.filename,
 	np <- np[np!="Iout"]
 	np <- np[np!="lp__"]
 	nn <- sqrt(length(np))
+	par(mfrow=c(round(nn,0),ceiling(nn)))
 	if(plot.compTruth) {
-		par(mfrow=c(round(nn,0),ceiling(nn)))
 		for(x in np) compare.fit.truth(prm,x)
+	}
+	if(!plot.compTruth) {
+		for(x in np) plot.posterior(prm,x)
 	}
 	return(list(fit = fit, prm.sample = prm))
 }

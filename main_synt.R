@@ -4,6 +4,7 @@ source("forecast.R")
 
 t1 <- as.numeric(Sys.time())
 set.seed(1234)
+pdf("plot_fcast_synt.pdf", width=12, height = 8)
 
 # Generate synthetic data
 # (parameters are read and asign from the file):
@@ -24,8 +25,11 @@ D <- RESuDe.simulate.wrap(pop_size,
 						  do.plot = TRUE,
 						  seed=123)
 
+dat.obs <- D$syn.inc
+dat.full <- D$syn.inc.full
+
 # forecasting horizon:
-# fcast.horizon <- 30
+fcast.horizon <- horizon-last.obs
 
 # Effective population bias:
 bias.pop_size <- 0.2
@@ -34,7 +38,7 @@ pop_mean <-  pop_size * bias.pop_size
 pop_lsd  <-  2.0
 pop_hi <- qlnorm(p=0.99, meanlog = log(pop_mean),sdlog = pop_lsd)
 pop_lo <- qlnorm(p=0.01, meanlog = log(pop_mean),sdlog = pop_lsd)
-pop_lo <- max(pop_lo,sum(D$syn.inc)+1)# <-- pop cannot be smaller than cumul incidence!
+pop_lo <- max(pop_lo,sum(dat.obs)+1)# <-- pop cannot be smaller than cumul incidence!
 pop_hi <- round(pop_hi,0)
 pop_lo <- round(pop_lo,0)
 message(paste("\n\nEffective pop size:",pop_lo,"--",pop_mean,"--",pop_hi))
@@ -42,12 +46,13 @@ message(paste("\n\nEffective pop size:",pop_lo,"--",pop_mean,"--",pop_hi))
 
 # Define Stan's known data:
 dat <- list(numobs   = last.obs,
-			Iobs     = D$syn.inc,
+			Iobs     = dat.obs,
 			R0_lo    = 0.7,
 			R0_hi    = 10,
 			GI_meanlo= 1,
 			GI_meanhi= 15,
-			GI_var   = GI_var,
+			GI_varhi = 4,
+			GI_varlo = 2,
 			alpha_hi = 4, #alpha*1.001,
 			alpha_lo = 0, #alpha*0.999,
 			kappa_hi = 0.1,
@@ -85,14 +90,15 @@ FCAST <- RESuDe.forecast(prm = FIT$prm.sample, # <-- sampled parameter values af
 						 fcast.horizon,
 						 pop_size = NULL, #pop_size.guess, 
 						 kappa = NULL, 
-						 alpha = alpha,
+						 alpha = NULL,
+						 GI_var=NULL,
 						 GI_span, 
-						 GI_var,
 						 last.obs,
-						 syn.inc.full = D$syn.inc.full,
+						 syn.inc.full = dat.full,
 						 do.plot = TRUE,
 						 CI1 = 50, CI2=95,
 						 seed=123)
 
+dev.off()
 t2 <- as.numeric(Sys.time())
 message(paste("\n\n- - - - - Completed in",round((t2-t1)/60,1),"minutes - - - - - -\n\n"))

@@ -1,0 +1,6 @@
+pop_size , 3000
+I.init , 1
+GI_span , 4
+horizon , 60
+last.obs, 10
+
