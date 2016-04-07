@@ -45,11 +45,21 @@ message(paste("\n\nEffective pop size:",pop_lo,"--",pop_mean,"--",pop_hi))
 
 # Reporting rate:
 rep.rate <- 0.4
+rep.var <- 0.05
+
+rho <- rep.rate
+sig <- rep.var
+a <- rho*( (1/rho-1)*rho^2/sig - 1)
+b <- a*(1/rho-1)
+xx <- seq(0,1,length.out = 1000)
+plot(xx,dbeta(xx,a,b),typ='l')
+
 
 # Define Stan's known data:
 dat <- list(numobs   = last.obs,
 			Iobs     = dat.obs,
-			rep.rate = rep.rate,
+			rep_rate = rep.rate,
+			rep_var  = rep.var,
 			R0_lo    = 0.7,
 			R0_hi    = 10,
 			GI_meanlo= 1,
@@ -71,7 +81,7 @@ dat <- list(numobs   = last.obs,
 
 # Fit RESuDe model using Stan:
 mp <- read.csv("mcmc.csv", header = FALSE)
-FIT <- RESuDe.fit.stan(model.filename = 'fit.stan', 
+FIT <- RESuDe.fit.stan(model.filename = 'fit_obserr.stan', 
 					   dat = dat, 
 					   n.iter = mp[mp[,1]=='iter',2], 
 					   n.chains = mp[mp[,1]=='nchains',2],
