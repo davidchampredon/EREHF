@@ -1,7 +1,6 @@
 # Notes
 
-It seems there is no need to fit the population size. When try to fit it, MCMC fails. But when I enter on purpose a wrong value for pop_size, the forcast is still pretty good. 
- 
+
 Increasing parameter 'alpha'  (heterogeneity parameter) has the effect of 
  * lowering the peak incidence and bring slightly sooner the peak time, 
  * does _not_ affect the duration of the overall epidemic 

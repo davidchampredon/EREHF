@@ -44,16 +44,17 @@ RESuDe.fit.stan <- function(model.filename,
 				chains   = n.chains,
 				control  = list(adapt_delta=0.8)
 	)
-	
 	print(fit)
 	
-	par(mfrow=c(2,2))
 	prm <- extract(fit)
 	np <- names(prm)
 	np <- np[np!="Iout"]
 	np <- np[np!="lp__"]
-	if(plot.compTruth) for(x in np) compare.fit.truth(prm,x)
-	
+	nn <- sqrt(length(np))
+	if(plot.compTruth) {
+		par(mfrow=c(round(nn,0),ceiling(nn)))
+		for(x in np) compare.fit.truth(prm,x)
+	}
 	return(list(fit = fit, prm.sample = prm))
 }
 

@@ -1,2 +1,4 @@
 iter, 6000
-nchains, 6
+nchains, 4
+diagnostic,0
+
