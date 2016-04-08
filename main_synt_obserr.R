@@ -45,19 +45,19 @@ message(paste("\n\nEffective pop size:",pop_lo,"--",pop_mean,"--",pop_hi))
 
 # Reporting rate:
 rep.rate <- 0.4
-rep.var <- 0.05
+rep.var <- 0.003
 
 rho <- rep.rate
 sig <- rep.var
 a <- rho*( (1/rho-1)*rho^2/sig - 1)
 b <- a*(1/rho-1)
 xx <- seq(0,1,length.out = 1000)
-plot(xx,dbeta(xx,a,b),typ='l')
+plot(xx,dbeta(xx,a,b),typ='l',log='')
 
 
 # Define Stan's known data:
 dat <- list(numobs   = last.obs,
-			Iobs     = dat.obs,
+			I_obs    = dat.obs,
 			rep_rate = rep.rate,
 			rep_var  = rep.var,
 			R0_lo    = 0.7,
@@ -67,9 +67,9 @@ dat <- list(numobs   = last.obs,
 			GI_varhi = 4,
 			GI_varlo = 2,
 			alpha_hi = 4, #alpha*1.001,
-			alpha_lo = 0, #alpha*0.999,
+			alpha_lo = 0.0001, #alpha*0.999,
 			kappa_hi = 0.1,
-			kappa_lo = 0,
+			kappa_lo = 0.0001,
 			pop_hi   = pop_hi,
 			pop_lo   = pop_lo, 
 			pop_mean = pop_mean,
@@ -87,6 +87,9 @@ FIT <- RESuDe.fit.stan(model.filename = 'fit_obserr.stan',
 					   n.chains = mp[mp[,1]=='nchains',2],
 					   plot.compTruth = TRUE
 ) 
+
+stop("EARLY STOP-----")
+
 # Show diagnostic plots for Stan fit:
 diagnostic <- mp[mp[,1]=='diagnostic',2]
 # Diagnostic:

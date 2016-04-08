@@ -1,6 +1,6 @@
 data {
 	int numobs;  // number of observations
-	int<lower=0> Iobs[numobs]; // Observed incidence 
+	int<lower=0> I_obs[numobs]; // Observed incidence 
 	int<lower=0> GI_span;  // [0;GI_span] = Support of the generation interval distribution
 	real rep_rate;
 	real rep_var;
@@ -29,16 +29,24 @@ parameters {
   real<lower=alpha_lo,  upper=alpha_hi>  alpha;  // heterogeneity
   real<lower=pop_lo,    upper=pop_hi>    pop_size;
   
+  real<lower=0.001,     upper=0.999>     unit_beta[numobs];
 }
 
 transformed parameters {
+  vector[numobs] I;
+  vector[numobs] I_unobs;
   
+  I[1] <- I_obs[1]; // right thing to do???
+  for(t in 2:numobs){
+  	I_unobs[t] <- unit_beta[t] * I[t];
+  	I[t]       <- I_obs[t] + I_unobs[t];
+  }
 }
 
 model {
 	real z;
 	vector[numobs] S;
-	vector[numobs] I; // unobserved ('latent') incidence
+	// vector[numobs] I; // unobserved ('latent') incidence
 	vector[GI_span] GI_dist;
 	real sGI;
 	real I_tmp;
@@ -71,15 +79,15 @@ model {
 	
 	// RENEWAL EQUATION:
 	
-	S[1] <- pop_size - Iobs[1];
-	I[1] <- Iobs[1]; // right thing to do???
-	
+	S[1] <- pop_size - I[1];
 	for(t in 2:numobs){
 		z <- 0;
 		for(j in 1:min(GI_span,t-1)) {
-			z <- z + GI_dist[j]*Iobs[t-j];
+			z <- z + GI_dist[j]*I[t-j];
 		}
 		I_tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-kappa*t) * z ;
+		
+		print(t," ---> ",I_tmp);
 		
 		// True/Unobserved/Latent incidence.
 		// Forced to be continuous because
@@ -88,7 +96,9 @@ model {
 		// approximated with continuous distribution
 		// here gamma, with parameters chosen such that
 		// mean and variance are the same as the poisson's
+		
 		I[t] ~ gamma(I_tmp,1.0);
+		// I[t] ~ gamma( 5 ,1.0);
 		
 		// Observed incidence derived from the latent one.
 		
@@ -96,18 +106,21 @@ model {
 		a <- rep_rate * ( (1/rep_rate-1)*rep_rate^2/rep_var - 1);
 		b <- a*(1/rep_rate-1);
 		
-		Iobs[t] ~  beta(a,b) * I[t];   
+		unit_beta ~ beta(a,b);
+		// I_obs[t] ~  normal( unit_beta * I[t], 0.001);   
+		// increment_log_prob()
+		
 		
 		// Cap the number of 
 		// new infections to the 
 		// remaining susceptibles:
 		nextS[1] <- 0;
-		nextS[2] <- S[t-1] - Iobs[t];
+		nextS[2] <- S[t-1] - I[t];
 		S[t] <- max(nextS);
 	}
 }
 
 generated quantities {
   vector[numobs] Iout;
-  for(i in 1:numobs) Iout[i] <- Iobs[i];
+  for(i in 1:numobs) Iout[i] <- I_obs[i];
 }
