@@ -107,9 +107,15 @@ RESuDe.forecast <- function(prm, # <-- sampled parameter values after the fit
 	
 	if(do.plot){
 		par(mfrow=c(2,2))
+		
 		ymx <- max(fcast.cone,syn.inc.full)
+		xx <- c(1:length(I.init),tfut)
+		
+		if(is.null(syn.inc.full)) ymx <- max(fcast.cone)
+		
 		plot(syn.inc.full,
 			 main = paste0("Forecast (median, ",CI1,"%CI, ",CI2,"%CI)"),
+			 xlim = c(0,length(xx)),
 			 ylim = c(1,ymx),
 			 xlab = "time",
 			 ylab = "", 
