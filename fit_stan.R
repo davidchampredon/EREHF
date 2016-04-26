@@ -1,6 +1,6 @@
 library(rstan)
-rstan_options(auto_write = TRUE)
-options(mc.cores = parallel::detectCores())
+# rstan_options(auto_write = TRUE)
+# options(mc.cores = parallel::detectCores())
 
 
 compare.fit.truth <- function(prm.sample, prm.name){
@@ -58,16 +58,20 @@ plot.posterior <- function(prm.sample, prm.name){
 
 
 RESuDe.fit.stan <- function(model.filename, 
-						  dat, 
-						  n.iter, 
-						  n.chains,
-						  plot.compTruth = FALSE
-						  ) {
+							dat, 
+							n.iter, 
+							n.chains,
+							n.cores = NULL,
+							plot.compTruth = FALSE
+) {
+	
+	if(is.null(n.cores)) nc <- parallel::detectCores()
+	if(!is.null(n.cores)) nc <- n.cores
 	
 	fit <- stan(file     = model.filename, 
 				data     = dat, 
 				iter     = n.iter,
-				cores    = parallel::detectCores() ,
+				cores    = nc,
 				chains   = n.chains,
 				control  = list(adapt_delta=0.8)
 	)
