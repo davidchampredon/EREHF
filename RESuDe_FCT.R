@@ -40,7 +40,9 @@ RESuDe.simulate <- function(pop_size,
 	for(t in (numobs+1):(numobs+horizon)){
 		z <- 0
 		for(j in 1:min(GI_span,t-1)){
-			z <- z + GI_dist(j, GI_span, GI_mean, GI_var) * I[t-j]
+			GI_j <- GI_dist(j, GI_span, GI_mean, GI_var)
+			# print(GI_j)
+			z <- z + GI_j * I[t-j]
 		}
 		I.tmp <- (S[t-1]/ pop_size)^(1+alpha) * R0 * exp(-kappa*t) * z 
 		I[t] <- rpois(n=1, lambda =  min(I.tmp, S[t-1]) )

@@ -26,6 +26,7 @@ D <- RESuDe.simulate.wrap(pop_size,
 						  seed=123)
 
 dat.obs <- D$syn.inc
+dat.obs <c(2,  9,  7 , 9 ,14, 13, 12, 15, 21, 16)
 dat.full <- D$syn.inc.full
 
 # forecasting horizon:
@@ -49,7 +50,7 @@ rep.rate <- 0.4
 # Define Stan's known data:
 dat <- list(numobs   = last.obs,
 			Iobs     = dat.obs,
-			rep.rate = rep.rate,
+			# rep.rate = rep.rate,
 			R0_lo    = 0.7,
 			R0_hi    = 10,
 			GI_meanlo= 1,
@@ -89,18 +90,35 @@ if(diagnostic){
 }
 
 # Forecast based on fit:
-FCAST <- RESuDe.forecast(prm = FIT$prm.sample, # <-- sampled parameter values after the fit
-						 fcast.horizon,
-						 pop_size = NULL, #pop_size.guess, 
-						 kappa = NULL, 
-						 alpha = NULL,
-						 GI_var=NULL,
-						 GI_span, 
-						 last.obs,
-						 syn.inc.full = dat.full,
-						 do.plot = TRUE,
-						 CI1 = 50, CI2=95,
-						 seed=123)
+if(FALSE){
+	FCAST <- RESuDe.forecast(prm = FIT$prm.sample, # <-- sampled parameter values after the fit
+							 fcast.horizon,
+							 pop_size = NULL, #pop_size.guess, 
+							 kappa = NULL, 
+							 alpha = NULL,
+							 GI_var=NULL,
+							 GI_span, 
+							 last.obs,
+							 syn.inc.full = dat.full,
+							 do.plot = TRUE,
+							 CI1 = 50, CI2=95,
+							 seed=123)
+}
+
+if(TRUE){
+fcast2 <- RESuDe.forecast.light(prm = FIT$prm.sample,
+								fcast.horizon =fcast.horizon,
+								kappa = 0, alpha = 0, 
+								GI_span = GI_span,
+								GI_mean = 3,
+								GI_var = 3, 
+								last.obs = last.obs,
+								nmax = 200,
+								syn.inc.full = dat.full, 
+								do.plot = T,
+								CI1 = 50,CI2=95,seed = 123)
+}
+
 
 dev.off()
 t2 <- as.numeric(Sys.time())
