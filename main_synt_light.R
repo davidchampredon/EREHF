@@ -4,10 +4,13 @@ source("forecast.R")
 
 t1 <- as.numeric(Sys.time())
 set.seed(1234)
-pdf("plot_fcast_synt.pdf", width=12, height = 8)
+
+save.to.file <- FALSE
+
+if(save.to.file) pdf("plot_fcast_synt.pdf", width=12, height = 8)
 
 # Generate synthetic data
-# (parameters are read and asign from the file):
+# (parameters are read and asigned from the file):
 prmdata <- read.csv('prmdata.csv',header = FALSE)
 pname <- trimws(as.character(prmdata[,1]))
 for(i in 1:length(pname)) assign(pname[i], prmdata[i,2])
@@ -30,7 +33,7 @@ dat.full <- D$syn.inc.full
 
 # dat.obs[last.obs] <- 27
 
-if(1){
+if(0){
 dat.obs <- c(2,  9,  7 , 9 ,14, 13, 12, 15, 21, 16)
 dat.obs <- c(4,  6,  6,  8, 11, 12, 15, 25, 50, 68)
 # c(4,  6,  6,  8, 11, 12, 15, 25, 50, 68)
@@ -104,6 +107,6 @@ fcast2 <- RESuDe.forecast.light(prm = FIT$prm.sample,
 }
 
 
-dev.off()
+if(save.to.file) dev.off()
 t2 <- as.numeric(Sys.time())
 message(paste("\n\n- - - - - Completed in",round((t2-t1)/60,1),"minutes - - - - - -\n\n"))

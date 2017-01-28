@@ -7,6 +7,6 @@ GI_span , 20
 GI_mean , 3
 GI_var , 3
 horizon , 120
-last.obs, 12
+last.obs, 20
 fcast.horizon, 100
 
